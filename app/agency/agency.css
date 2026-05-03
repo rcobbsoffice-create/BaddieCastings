@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
+:root {
+    --bg-primary: #080810;
+    --bg-secondary: #0f0f1a;
+    --bg-card: #13131f;
+    --bg-card-hover: #1a1a2e;
+    --accent-pink: #ff007a;
+    --accent-pink-dim: rgba(255, 0, 122, 0.15);
+    --accent-pink-glow: rgba(255, 0, 122, 0.4);
+    --accent-gold: #ffd700;
+    --accent-purple: #9b59ff;
+    --accent-emerald: #00ffa3;
+    --accent-emerald-glow: rgba(0, 255, 163, 0.2);
+    --accent-ruby: #ff3c3c;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.4);
+    --border: rgba(255, 255, 255, 0.08);
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --font-display: 'Playfair Display', serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ── Typography ── */
+.agency-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+/* ── Components ── */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    border-color: var(--accent-pink);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 0, 122, 0.15);
+}
+
+.btn-pink {
+    padding: 12px 24px;
+    background: var(--accent-pink);
+    color: #fff;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: var(--font-sans);
+}
+
+.btn-pink:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 20px var(--accent-pink-glow);
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-emerald {
+    background: var(--accent-emerald-glow);
+    color: var(--accent-emerald);
+    border: 1px solid var(--accent-emerald);
+}
+
+.badge-ruby {
+    background: rgba(255, 60, 60, 0.1);
+    color: var(--accent-ruby);
+    border: 1px solid var(--accent-ruby);
+}

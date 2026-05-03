@@ -1,0 +1,208 @@
+.page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bg {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255, 0, 122, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 80% 80%, rgba(155, 89, 255, 0.2) 0%, transparent 60%),
+        var(--bg-primary);
+    z-index: 0;
+}
+
+.logo {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.logoText {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logoTag {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 28px 24px;
+    box-shadow: var(--shadow-card);
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Role Grid */
+.roleGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.roleCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-align: left;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+}
+
+.roleCard:hover {
+    border-color: var(--accent-pink);
+}
+
+.roleSelected {
+    border-color: var(--accent-pink) !important;
+    background: var(--accent-pink-dim) !important;
+}
+
+.roleEmoji {
+    font-size: 1.5rem;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.roleBody {
+    flex: 1;
+}
+
+.roleTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+
+.roleTitle {
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.roleSub {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.roleDesc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.checkmark {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 1rem;
+    color: var(--accent-pink);
+    font-weight: 800;
+}
+
+/* Step 2 – credentials */
+.back {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: block;
+    transition: color 0.2s;
+}
+
+.back:hover {
+    color: var(--text-primary);
+}
+
+.selectedRole {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent-pink-dim);
+    border: 1px solid var(--accent-pink);
+    border-radius: 50px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent-pink);
+    margin-bottom: 16px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.signupLink {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.link {
+    color: var(--accent-pink);
+    font-weight: 600;
+    cursor: pointer;
+}

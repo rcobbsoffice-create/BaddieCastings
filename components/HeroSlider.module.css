@@ -1,0 +1,347 @@
+.slider {
+  position: relative;
+  width: 100vw;
+  height: 90vh;
+  min-height: 600px;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  overflow: hidden;
+  background: #000;
+  border-radius: 0 !important;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  z-index: 1;
+}
+
+.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.image, .video {
+  object-fit: cover !important;
+  filter: brightness(0.65);
+  border-radius: 0 !important;
+  transform: translateZ(0);
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.floatingOverlay {
+  position: absolute;
+  top: 10%;
+  left: -10%;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0.8;
+}
+
+.floatingImg {
+  width: auto;
+  height: 90%;
+  object-fit: contain;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-20px) translateX(10px); }
+}
+
+.videoWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.videoWrapper iframe {
+  width: 100vw;
+  height: 100vh;
+  min-width: 177.77vh; /* 16:9 ratio */
+  min-height: 56.25vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.videoContent {
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  max-width: 500px;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoTitle {
+  background: #000;
+  padding: 10px 20px;
+  font-family: 'Raleway', sans-serif !important;
+  font-size: clamp(1rem, 4vw, 1.4rem);
+  text-transform: none;
+  letter-spacing: 0;
+  display: inline-block;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--accent-pink);
+}
+
+.videoSub {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 16px;
+  font-family: 'Raleway', sans-serif !important;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(13, 13, 26, 0.4) 0%,
+    transparent 40%,
+    rgba(13, 13, 26, 0.8) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  z-index: 5;
+}
+
+.content {
+  max-width: 800px;
+  transform: translateY(20px);
+  transition: transform 0.8s ease-out;
+}
+
+.active .content {
+  transform: translateY(0);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.1;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.krona {
+  font-family: 'Krona One', sans-serif !important;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+}
+
+.highlight {
+  background: var(--gradient-pink);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.2em;
+}
+
+.subtitle {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+.dots {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.dotActive {
+  background: var(--accent-pink);
+  transform: scale(1.2);
+  box-shadow: 0 0 10px var(--accent-pink-glow);
+}
+
+@media (max-width: 768px) {
+  .slider {
+    height: 70vh;
+  }
+}
+
+.videoOverlay {
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  padding: 40px !important;
+}
+
+.videoSectionWrapper {
+  padding: 80px 24px;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 700px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-family: 'Krona One', sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #fff;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.sectionSub {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 1.6rem;
+  }
+  .sectionSub {
+    font-size: 0.85rem;
+  }
+}
+
+.miniSlider {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  height: 500px;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 768px) {
+  .miniSlider {
+    height: 300px;
+  }
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
+}
+
+
+.partnersRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+  width: 100%;
+  max-width: 1000px;
+  margin-top: 40px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.partnersRow:hover {
+  opacity: 1;
+}
+
+.partnerLogo {
+  width: 180px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.partnerLogo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .partnersRow {
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .partnerLogo {
+    width: 120px;
+    height: 60px;
+  }
+}
+
+/* Final Mobile Optimizations for Video Content */
+@media (max-width: 768px) {
+  .videoOverlay {
+    padding: 12px !important;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 25%) !important;
+    align-items: flex-end !important;
+  }
+  
+  .videoContent {
+    padding-bottom: 35px !important; /* Position just above navigation dots */
+    padding-left: 0 !important;
+  }
+  
+  .videoTitle {
+    font-size: 0.85rem !important;
+    padding: 4px 10px !important;
+    background: rgba(0,0,0,0.9) !important;
+    border-left: 3px solid var(--accent-pink) !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .videoSub {
+    font-size: 0.6rem !important;
+    padding: 2px 10px !important;
+    background: rgba(0,0,0,0.6) !important;
+    margin-bottom: 5px !important;
+  }
+}
