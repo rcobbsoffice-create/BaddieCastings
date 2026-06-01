@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Plus, X, Image as ImageIcon, Film, Trash2, Star, GripVertical } from 'lucide-react';
+import { Plus, Image as ImageIcon, Film, Trash2, Star, AlertCircle } from 'lucide-react';
 import styles from './PortfolioGallery.module.css';
 
-export default function PortfolioGallery({ profileId, editable = false }) {
+const BUCKET = 'portfolio';
+const MIN_PHOTOS = 3;
+
+export default function PortfolioGallery({ profileId, editable = false, isTalent = false }) {
     const [media, setMedia] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState(null);
 
     useEffect(() => {
-        if (profileId) {
-            fetchMedia();
-        }
+        if (profileId) fetchMedia();
     }, [profileId]);
 
     const fetchMedia = async () => {
@@ -23,105 +25,117 @@ export default function PortfolioGallery({ profileId, editable = false }) {
             .select('*')
             .eq('profile_id', profileId)
             .order('sort_order', { ascending: true });
-
-        if (!error && data) {
-            setMedia(data);
-        }
+        if (!error && data) setMedia(data);
         setLoading(false);
     };
 
-    const handleUpload = async (e) => {
+    const handleUpload = async (e, type) => {
         const file = e.target.files[0];
         if (!file) return;
 
         setUploading(true);
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
+        setUploadError(null);
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        const fileName = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
         const filePath = `${profileId}/${fileName}`;
 
-        // In a real app, you'd upload to Supabase Storage here
-        // For this demo, we'll simulate the upload and use a placeholder URL if storage fails
-        // but we'll try the real way first if configured.
-        
         try {
-            // Check if it's image or video
-            const type = file.type.startsWith('video/') ? 'video' : 'image';
-            
-            // For now, let's just insert into the DB with a placeholder if we can't upload
-            // but we'll try to use a mock URL for now to show functionality
-            const mockUrl = type === 'image' 
-                ? `https://picsum.photos/seed/${Math.random()}/800/1000`
-                : '/Pink-ink.mp4'; // Reusing existing video for demo
+            const { error: storageErr } = await supabase.storage
+                .from(BUCKET)
+                .upload(filePath, file, { contentType: file.type, upsert: false });
 
-            const { data, error } = await supabase
+            if (storageErr) throw storageErr;
+
+            const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+
+            const { data, error: dbErr } = await supabase
                 .from('profile_media')
-                .insert([{
-                    profile_id: profileId,
-                    url: mockUrl,
-                    type: type,
-                    sort_order: media.length
-                }])
+                .insert([{ profile_id: profileId, url: publicUrl, type, sort_order: media.length }])
                 .select();
 
-            if (!error && data) {
-                setMedia([...media, data[0]]);
-            }
+            if (dbErr) throw dbErr;
+            if (data) setMedia(prev => [...prev, data[0]]);
         } catch (err) {
             console.error('Upload error:', err);
+            setUploadError(err.message || 'Upload failed. Please try again.');
         } finally {
             setUploading(false);
+            e.target.value = '';
         }
     };
 
-    const handleDelete = async (id) => {
-        const { error } = await supabase
-            .from('profile_media')
-            .delete()
-            .eq('id', id);
-
-        if (!error) {
-            setMedia(media.filter(m => m.id !== id));
+    const handleDelete = async (item) => {
+        const url = item.url;
+        // Extract storage path from public URL to delete from bucket
+        const pathMatch = url.match(/\/storage\/v1\/object\/public\/portfolio\/(.+)/);
+        if (pathMatch) {
+            await supabase.storage.from(BUCKET).remove([pathMatch[1]]);
         }
+        const { error } = await supabase.from('profile_media').delete().eq('id', item.id);
+        if (!error) setMedia(prev => prev.filter(m => m.id !== item.id));
     };
 
     const setPrimary = async (id) => {
-        // Reset all to false then set target to true
         await supabase.from('profile_media').update({ is_primary: false }).eq('profile_id', profileId);
         const { error } = await supabase.from('profile_media').update({ is_primary: true }).eq('id', id);
-
-        if (!error) {
-            setMedia(media.map(m => ({ ...m, is_primary: m.id === id })));
-        }
+        if (!error) setMedia(prev => prev.map(m => ({ ...m, is_primary: m.id === id })));
     };
 
     if (loading) return <div className={styles.loading}>Loading Gallery...</div>;
 
     const images = media.filter(m => m.type === 'image');
     const videos = media.filter(m => m.type === 'video');
+    const photosMissing = isTalent && editable && images.length < MIN_PHOTOS;
 
     return (
         <div className={styles.galleryContainer}>
+            {/* Minimum photos banner */}
+            {photosMissing && (
+                <div className={styles.minPhotoBanner}>
+                    <AlertCircle size={16} />
+                    <span>
+                        {images.length === 0
+                            ? `Upload at least ${MIN_PHOTOS} photos to complete your profile`
+                            : `${images.length}/${MIN_PHOTOS} photos — add ${MIN_PHOTOS - images.length} more to complete your profile`}
+                    </span>
+                </div>
+            )}
+
+            {uploadError && (
+                <div className={styles.errorBanner}>
+                    <AlertCircle size={14} /> {uploadError}
+                </div>
+            )}
+
             {/* Photos Section */}
             <div className={styles.section}>
                 <div className={styles.header}>
-                    <h3><ImageIcon size={18} /> Photos ({images.length}/20)</h3>
+                    <h3>
+                        <ImageIcon size={18} /> Photos ({images.length}/20)
+                        {isTalent && (
+                            <span className={styles.minBadge} style={{ color: images.length >= MIN_PHOTOS ? 'var(--accent-emerald, #00ff88)' : 'var(--accent-gold, #ffc107)' }}>
+                                {' '}· min {MIN_PHOTOS} required
+                            </span>
+                        )}
+                    </h3>
                     {editable && images.length < 20 && (
                         <label className={styles.addButton}>
                             <Plus size={16} /> Add Photo
-                            <input type="file" accept="image/*" onChange={handleUpload} hidden />
+                            <input type="file" accept="image/*" onChange={e => handleUpload(e, 'image')} hidden disabled={uploading} />
                         </label>
                     )}
                 </div>
                 <div className={styles.grid}>
-                    {images.map((item) => (
+                    {images.map(item => (
                         <div key={item.id} className={`${styles.item} ${item.is_primary ? styles.primary : ''}`}>
-                            <img src={item.url} alt="Gallery" />
+                            <img src={item.url} alt="Portfolio" loading="lazy" />
                             {editable && (
                                 <div className={styles.actions}>
                                     <button onClick={() => setPrimary(item.id)} title="Set as Primary">
-                                        <Star size={14} fill={item.is_primary ? "currentColor" : "none"} />
+                                        <Star size={14} fill={item.is_primary ? 'currentColor' : 'none'} />
                                     </button>
-                                    <button onClick={() => handleDelete(item.id)} className={styles.delete}>
+                                    <button onClick={() => handleDelete(item)} className={styles.delete}>
                                         <Trash2 size={14} />
                                     </button>
                                 </div>
@@ -139,24 +153,22 @@ export default function PortfolioGallery({ profileId, editable = false }) {
                     {editable && videos.length < 20 && (
                         <label className={styles.addButton}>
                             <Plus size={16} /> Add Video
-                            <input type="file" accept="video/*" onChange={handleUpload} hidden />
+                            <input type="file" accept="video/*" onChange={e => handleUpload(e, 'video')} hidden disabled={uploading} />
                         </label>
                     )}
                 </div>
                 <div className={styles.grid}>
-                    {videos.map((item) => (
+                    {videos.map(item => (
                         <div key={item.id} className={styles.item}>
                             <video src={item.url} muted playsInline onMouseOver={e => e.target.play()} onMouseOut={e => e.target.pause()} />
                             {editable && (
                                 <div className={styles.actions}>
-                                    <button onClick={() => handleDelete(item.id)} className={styles.delete}>
+                                    <button onClick={() => handleDelete(item)} className={styles.delete}>
                                         <Trash2 size={14} />
                                     </button>
                                 </div>
                             )}
-                            <div className={styles.videoOverlay}>
-                                <Film size={14} />
-                            </div>
+                            <div className={styles.videoOverlay}><Film size={14} /></div>
                         </div>
                     ))}
                     {videos.length === 0 && <p className={styles.empty}>No videos added yet.</p>}
@@ -166,7 +178,7 @@ export default function PortfolioGallery({ profileId, editable = false }) {
             {uploading && (
                 <div className={styles.uploadOverlay}>
                     <div className="loader-spin"></div>
-                    <p>Uploading Media...</p>
+                    <p>Uploading...</p>
                 </div>
             )}
         </div>

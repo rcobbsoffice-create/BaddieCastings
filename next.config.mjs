@@ -12,6 +12,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    // Force SWC so Expo's babel.config.js (Metro-only) doesn't conflict
+    forceSwcTransforms: true,
+  },
 };
 
 export default nextConfig;

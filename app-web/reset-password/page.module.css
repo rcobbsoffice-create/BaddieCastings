@@ -1,0 +1,210 @@
+.page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bg {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(255, 0, 122, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 80% 80%, rgba(155, 89, 255, 0.18) 0%, transparent 60%),
+        var(--bg-primary);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.logo {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.logoText {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logoTag {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 32px 24px;
+    box-shadow: var(--shadow-card);
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 22px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.passwordWrap {
+    position: relative;
+}
+
+.eyeBtn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1;
+}
+
+.mismatch {
+    font-size: 0.75rem;
+    color: #ff6b6b;
+    margin-top: 2px;
+}
+
+.errorBox {
+    background: rgba(255, 7, 107, 0.08);
+    border: 1px solid rgba(255, 7, 107, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: #ff6b6b;
+    font-size: 0.82rem;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+/* ── Password strength ── */
+.strengthWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.strengthBars {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+}
+
+.strengthBar {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    transition: background 0.3s;
+}
+
+.strengthLabel {
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
+    transition: color 0.3s;
+}
+
+/* ── Waiting state ── */
+.waitIcon {
+    font-size: 2.4rem;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.helpText {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+}
+
+.link {
+    color: var(--accent-pink);
+    font-weight: 600;
+}
+
+/* ── Success state ── */
+.successIcon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--gradient-pink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+    font-weight: 800;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 28px rgba(255, 0, 122, 0.35);
+}
+
+.redirectBar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.redirectFill {
+    height: 100%;
+    background: var(--gradient-pink);
+    border-radius: 2px;
+    animation: fillBar 2.5s linear forwards;
+}
+
+@keyframes fillBar {
+    from { width: 0%; }
+    to   { width: 100%; }
+}

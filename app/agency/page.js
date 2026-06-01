@@ -192,22 +192,34 @@ export default function AgencyDashboard() {
   };
 
   // ─── Clear all submissions ──────────────────────────────────────────
+  const [clearingSubmissions, setClearingSubmissions] = useState(false);
+
   const handleClearSubmissions = async () => {
     const count = filteredSubs.length;
     if (count === 0) return;
-    
-    const confirmMsg = submissionFilter === 'all' 
+
+    const confirmMsg = submissionFilter === 'all'
       ? `Are you sure you want to PERMANENTLY DELETE ALL ${count} submissions?`
       : `Are you sure you want to PERMANENTLY DELETE the ${count} filtered submissions (${submissionFilter})?`;
-      
+
     if (!window.confirm(confirmMsg)) return;
 
+    setClearingSubmissions(true);
     const idsToDelete = filteredSubs.map(s => s.id);
-    const { error } = await supabase.from('form_submissions').delete().in('id', idsToDelete);
-    
-    if (!error) {
-      setSubmissions(prev => prev.filter(s => !idsToDelete.includes(s.id)));
-      setExpandedSub(null);
+    try {
+      const { error } = await supabase.from('form_submissions').delete().in('id', idsToDelete);
+      if (error) {
+        console.error('Clear submissions error:', error);
+        alert(`Failed to delete submissions: ${error.message}`);
+      } else {
+        setSubmissions(prev => prev.filter(s => !idsToDelete.includes(s.id)));
+        setExpandedSub(null);
+      }
+    } catch (err) {
+      console.error('Clear submissions exception:', err);
+      alert('An unexpected error occurred. Please try again.');
+    } finally {
+      setClearingSubmissions(false);
     }
   };
 
@@ -449,13 +461,13 @@ export default function AgencyDashboard() {
                   <option value="spam">Spam</option>
                 </select>
               </div>
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={handleClearSubmissions}
                 style={{ height: 38, color: 'var(--accent-ruby)', borderColor: 'rgba(255,51,102,0.2)' }}
-                disabled={filteredSubs.length === 0}
+                disabled={filteredSubs.length === 0 || clearingSubmissions}
               >
-                <Trash2 size={14} /> Clear {submissionFilter === 'all' ? 'All' : 'Filtered'}
+                <Trash2 size={14} /> {clearingSubmissions ? 'Deleting…' : `Clear ${submissionFilter === 'all' ? 'All' : 'Filtered'}`}
               </button>
               <span className={styles.subCount}>{filteredSubs.length} results</span>
             </div>

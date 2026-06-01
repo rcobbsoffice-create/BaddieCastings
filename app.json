@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Baddie Castings",
+    "slug": "baddie-castings",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/logo.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./public/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.baddiecastings.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Baddie Castings needs access to your photo library to upload portfolio photos and videos.",
+        "NSCameraUsageDescription": "Baddie Castings needs camera access to take portfolio photos.",
+        "NSMicrophoneUsageDescription": "Baddie Castings needs microphone access for video recording."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/logo.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.baddiecastings.app",
+      "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "favicon": "./public/logo.png"
+    },
+    "extra": {
+      "supabaseUrl": "YOUR_SUPABASE_URL",
+      "supabaseAnonKey": "YOUR_SUPABASE_ANON_KEY",
+      "eas": {
+        "projectId": "5b230653-4b43-4c14-ade7-50fa0f1f55df"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Baddie Castings needs access to your photos to upload your portfolio.",
+          "cameraPermission": "Baddie Castings needs camera access to take portfolio photos."
+        }
+      ]
+    ]
+  }
+}

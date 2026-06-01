@@ -1,0 +1,5 @@
+{
+  "buildCommand": "rm -rf app && cp -r app-web app && NEXT_DISABLE_TURBOPACK=1 next build",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
+}

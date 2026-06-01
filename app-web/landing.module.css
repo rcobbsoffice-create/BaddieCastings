@@ -1,0 +1,591 @@
+/* ── Root ── */
+.root {
+    min-height: 100dvh;
+    position: relative;
+    overflow-x: hidden;
+    /* landing page needs its own bottom padding — no bottom nav */
+    padding-bottom: 0;
+}
+
+/* Override the page-wrapper padding since landing has no bottom nav */
+.root :global(.page-wrapper) {
+    padding-bottom: 0;
+}
+
+/* ── Background ── */
+.bg {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 90% 60% at 10% 0%, rgba(255, 0, 122, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 30%, rgba(155, 89, 255, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 50% 90%, rgba(155, 89, 255, 0.12) 0%, transparent 55%),
+        var(--bg-primary);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ── Nav ── */
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.navInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navScrolled {
+    background: rgba(8, 8, 16, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+}
+
+.logoWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navLogoImg {
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.navLogo {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── Hero ── */
+.hero {
+    position: relative;
+    z-index: 1;
+    padding: calc(100px + env(safe-area-inset-top)) 24px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.heroBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 0, 122, 0.1);
+    border: 1px solid rgba(255, 0, 122, 0.25);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--accent-pink);
+    margin-bottom: 20px;
+}
+
+.heroBadgeDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-pink);
+    animation: pulse-glow 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.heroTitle {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+}
+
+.heroGradient {
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.heroSub {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 320px;
+    margin-bottom: 28px;
+}
+
+.heroCtas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 24px;
+}
+
+.appBadges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.appBadge {
+    height: 64px;
+    width: auto;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    opacity: 0.9;
+    mix-blend-mode: screen; /* Makes black background transparent */
+}
+
+.appBadge:hover {
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+.appBadgeContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    max-width: 340px;
+}
+
+.appBadgeText {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.appBadgeText b {
+    color: var(--accent-pink);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+}
+
+.appBadges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+/* ── Stats ── */
+.statsSection {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+}
+
+.quickActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 20px;
+    margin-top: -30px;
+    position: relative;
+    z-index: 100;
+    max-width: 600px;
+    margin-inline: auto;
+}
+
+.actionCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.actionCard:hover {
+    border-color: var(--accent-pink);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-pink);
+}
+
+.actionIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionCard h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+
+.actionCard p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.actionCard svg:last-child {
+    margin-left: auto;
+    color: var(--text-muted);
+}
+
+.statsInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.statChip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 8px;
+}
+
+.statValue {
+    font-size: 1rem;
+    font-weight: 800;
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* ── Hero image ── */
+.heroImageWrap {
+    position: relative;
+    z-index: 1;
+    margin: 0 20px 0;
+}
+
+.heroImageGlow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at center, rgba(255, 0, 122, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.heroImage {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+    object-fit: cover;
+    max-height: 260px;
+}
+
+/* ── Sections ── */
+.section {
+    position: relative;
+    z-index: 1;
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sectionLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-pink);
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.sectionTitle {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.sectionSub {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+    line-height: 1.6;
+    text-align: center;
+    max-width: 700px;
+    margin-inline: auto;
+}
+
+/* ── Role cards ── */
+.roleCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.roleCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.roleCard:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+}
+
+.roleCardTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.roleEmoji {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.roleCardTitle {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+}
+
+.roleCardSub {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-pink);
+    margin-bottom: 10px;
+}
+
+.roleCardDesc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.roleCardCta {
+    display: inline-block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-pink);
+    transition: opacity 0.2s;
+}
+
+.roleCardCta:hover {
+    opacity: 0.75;
+}
+
+/* ── Steps ── */
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.stepNum {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent-pink-dim);
+    border: 2px solid var(--accent-pink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--accent-pink);
+}
+
+.stepBody {
+    padding: 0;
+}
+
+.stepTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.stepDesc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ── Shop banner ── */
+.shopSection {
+    position: relative;
+    z-index: 1;
+    padding: 0 20px 40px;
+}
+
+.shopImageWrap {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.shopImage {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.shopOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8, 8, 16, 0.9) 0%, rgba(8, 8, 16, 0.3) 60%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+}
+
+.shopTitle {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.shopSub {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Bottom CTA ── */
+.ctaSection {
+    position: relative;
+    z-index: 1;
+    padding: 100px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+}
+
+.ctaTitle {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.2;
+    position: relative;
+}
+
+.ctaSub {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    max-width: 280px;
+    line-height: 1.5;
+    position: relative;
+}
+
+.ctaSignin {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    position: relative;
+}
+
+.ctaSigninLink {
+    color: var(--accent-pink);
+    font-weight: 600;
+}
+
+/* ── Footer ── */
+.footer {
+    position: relative;
+    z-index: 1;
+    padding: 40px 0;
+    border-top: 1px solid var(--border);
+    background: var(--bg-primary);
+}
+
+.footerInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footerLogo {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 800;
+    background: var(--gradient-pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.footerTag {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}

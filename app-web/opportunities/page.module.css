@@ -1,0 +1,303 @@
+.content {
+    padding: 0 16px;
+}
+
+.filterRow {
+    margin-bottom: 20px;
+}
+
+.filterChip {
+    padding: 8px 18px;
+    border-radius: 50px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.filterChip:hover {
+    border-color: var(--accent-pink);
+    color: var(--accent-pink);
+}
+
+.filterActive {
+    background: var(--accent-pink-dim);
+    border-color: var(--accent-pink) !important;
+    color: var(--accent-pink) !important;
+}
+
+.listingList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.listing {
+    padding: 18px;
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+.listingTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.listingTitle {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 6px 0 2px;
+}
+
+.listingVenue {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.listingMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.colorReq {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+}
+
+.requirements {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.listingFooter {
+    margin-top: 4px;
+}
+
+.listingTopRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.saveBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.saveBtn:hover {
+    color: var(--accent-pink);
+    transform: scale(1.1);
+}
+
+/* ── Apply Modal ─────────────────────────────── */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 200;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 24px calc(36px + env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(60px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modalClose {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.modalClose:hover {
+    background: var(--border);
+    color: var(--text-primary);
+}
+
+.modalHeader {
+    margin-bottom: 20px;
+    padding-right: 24px;
+}
+
+.modalTitle {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 8px 0 4px;
+}
+
+.modalVenue {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.modalPayRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--accent-gold);
+    font-weight: 700;
+}
+
+.modalSep {
+    color: var(--text-muted);
+}
+
+.modalForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formLabel {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── Success State ───────────────────────────── */
+
+.successState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 0 8px;
+}
+
+.successIcon {
+    margin-bottom: 16px;
+    animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.successTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.successMsg {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 300px;
+    margin-bottom: 8px;
+}
+
+.appliedBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px;
+    border-radius: 50px;
+    background: rgba(0, 255, 136, 0.08);
+    border: 1px solid rgba(0, 255, 136, 0.25);
+    color: #00ff88;
+    font-size: 0.85rem;
+    font-weight: 700;
+}

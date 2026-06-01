@@ -47,3 +47,4 @@ raw_meta.txt
 cleaned_meta.txt
 scripts/*.json
 scripts/extract_json_meta.php
+.env*.local

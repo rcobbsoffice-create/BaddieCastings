@@ -1,0 +1,111 @@
+.content {
+    padding: 0 16px;
+}
+
+.markReadBtn {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-pink);
+    background: var(--accent-pink-dim);
+    border: 1px solid var(--accent-pink);
+    padding: 6px 12px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.markReadBtn:hover {
+    background: var(--accent-pink);
+    color: #fff;
+}
+
+.notifList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notifItem {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+.notifItem:hover {
+    border-color: var(--border-accent);
+}
+
+.notifItem.unread {
+    background: rgba(255, 0, 122, 0.03);
+    border-color: rgba(255, 0, 122, 0.2);
+}
+
+.iconBox {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notifBody {
+    flex: 1;
+}
+
+.topRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.notifTitle {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.notifTime {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.notifText {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.unreadDot {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent-pink);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-pink-glow);
+}
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+    color: var(--text-muted);
+    gap: 16px;
+}

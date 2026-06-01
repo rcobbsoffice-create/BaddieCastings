@@ -4,20 +4,34 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { X, Save, AlertCircle } from 'lucide-react';
 
-export default function CastingStudio({ onClose, onCreated }) {
-    const [form, setForm] = useState({
-        category: 'Nightlife',
-        title: '',
-        venue: '',
-        date: '',
-        location: 'Atlanta, GA',
-        pay: '',
-        spots: 5,
-        requirements: '',
-        color: 'N/A'
-    });
+const EMPTY = {
+    category: 'Nightlife',
+    title: '',
+    venue: '',
+    date: '',
+    location: 'Atlanta, GA',
+    pay: '',
+    spots: 5,
+    requirements: '',
+    color: 'N/A'
+};
+
+export default function CastingStudio({ onClose, onCreated, listing }) {
+    const [form, setForm] = useState(listing ? {
+        category:     listing.category     || 'Nightlife',
+        title:        listing.title        || '',
+        venue:        listing.venue        || '',
+        date:         listing.date         || '',
+        location:     listing.location     || 'Atlanta, GA',
+        pay:          listing.pay          || '',
+        spots:        listing.spots        || 5,
+        requirements: listing.requirements || '',
+        color:        listing.color        || 'N/A',
+    } : { ...EMPTY });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const isEdit = !!listing;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,37 +39,44 @@ export default function CastingStudio({ onClose, onCreated }) {
         setError(null);
 
         try {
-            const { error: sbError } = await supabase
-                .from('listings')
-                .insert([form]);
+            if (isEdit) {
+                const { error: sbError } = await supabase
+                    .from('listings')
+                    .update(form)
+                    .eq('id', listing.id);
+                if (sbError) throw sbError;
+            } else {
+                const { error: sbError } = await supabase
+                    .from('listings')
+                    .insert([form]);
+                if (sbError) throw sbError;
 
-            if (sbError) throw sbError;
-
-            // Optional: Create notification for all talent
-            const newNotif = {
-                type: 'casting',
-                title: 'New Casting Published! ✨',
-                body: `${form.title} at ${form.venue} is now open for applications.`,
-                unread: true,
-                icon: 'Star',
-                color: 'var(--accent-pink)'
-            };
-            await supabase.from('notifications').insert([newNotif]);
+                await supabase.from('notifications').insert([{
+                    type: 'casting',
+                    title: 'New Casting Published! ✨',
+                    body: `${form.title} at ${form.venue} is now open for applications.`,
+                    unread: true,
+                    icon: 'Star',
+                    color: 'var(--accent-pink)'
+                }]);
+            }
 
             onCreated();
             onClose();
         } catch (err) {
-            console.error('Casting Creation Error:', err);
+            console.error('Casting Error:', err);
             setError(err.message);
             setLoading(false);
         }
     };
 
+    const set = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+
     return (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
             <div className="modal-card">
                 <header className="modal-header">
-                    <h2>Create New Casting</h2>
+                    <h2>{isEdit ? 'Edit Casting' : 'Create New Casting'}</h2>
                     <button className="close-btn" onClick={onClose}><X size={20} /></button>
                 </header>
 
@@ -70,7 +91,7 @@ export default function CastingStudio({ onClose, onCreated }) {
                     <div className="form-row">
                         <div className="field">
                             <label>Category</label>
-                            <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+                            <select value={form.category} onChange={set('category')}>
                                 <option>Nightlife</option>
                                 <option>Photoshoots</option>
                                 <option>Videoshoots</option>
@@ -80,29 +101,39 @@ export default function CastingStudio({ onClose, onCreated }) {
                         </div>
                         <div className="field">
                             <label>Title</label>
-                            <input type="text" placeholder="e.g. VIP Hostess" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
+                            <input type="text" placeholder="e.g. VIP Hostess" value={form.title} onChange={set('title')} required />
                         </div>
                     </div>
 
                     <div className="form-row">
                         <div className="field">
                             <label>Venue</label>
-                            <input type="text" placeholder="Club Onyx" value={form.venue} onChange={e => setForm({ ...form, venue: e.target.value })} required />
+                            <input type="text" placeholder="Club Onyx" value={form.venue} onChange={set('venue')} required />
                         </div>
                         <div className="field">
                             <label>Location</label>
-                            <input type="text" placeholder="Atlanta, GA" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} required />
+                            <input type="text" placeholder="Atlanta, GA" value={form.location} onChange={set('location')} required />
                         </div>
                     </div>
 
                     <div className="form-row">
                         <div className="field">
                             <label>Date</label>
-                            <input type="text" placeholder="Sat Apr 19" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+                            <input type="text" placeholder="Sat Apr 19" value={form.date} onChange={set('date')} required />
+                            <input
+                                type="date"
+                                onChange={e => {
+                                    if (!e.target.value) return;
+                                    const d = new Date(e.target.value + 'T00:00:00');
+                                    const formatted = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                                    setForm({ ...form, date: formatted });
+                                }}
+                                style={{ marginTop: '4px' }}
+                            />
                         </div>
                         <div className="field">
                             <label>Pay</label>
-                            <input type="text" placeholder="$250 + tips" value={form.pay} onChange={e => setForm({ ...form, pay: e.target.value })} required />
+                            <input type="text" placeholder="$250 + tips" value={form.pay} onChange={set('pay')} required />
                         </div>
                     </div>
 
@@ -113,7 +144,7 @@ export default function CastingStudio({ onClose, onCreated }) {
                         </div>
                         <div className="field">
                             <label>Required Color</label>
-                            <input type="text" placeholder="Black" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} />
+                            <input type="text" placeholder="Black" value={form.color} onChange={set('color')} />
                         </div>
                     </div>
 
@@ -123,13 +154,13 @@ export default function CastingStudio({ onClose, onCreated }) {
                             rows="3"
                             placeholder="Heels required, 21+, etc."
                             value={form.requirements}
-                            onChange={e => setForm({ ...form, requirements: e.target.value })}
+                            onChange={set('requirements')}
                         ></textarea>
                     </div>
 
                     <button type="submit" className="btn-save" disabled={loading}>
                         <Save size={18} />
-                        {loading ? 'Publishing...' : 'Publish Casting'}
+                        {loading ? (isEdit ? 'Saving…' : 'Publishing…') : (isEdit ? 'Save Changes' : 'Publish Casting')}
                     </button>
                 </form>
             </div>
@@ -152,6 +183,8 @@ export default function CastingStudio({ onClose, onCreated }) {
                     border-radius: var(--radius-lg);
                     width: 100%;
                     max-width: 600px;
+                    max-height: 90vh;
+                    overflow-y: auto;
                     padding: 32px;
                     box-shadow: 0 30px 60px rgba(0,0,0,0.5);
                 }
@@ -167,7 +200,7 @@ export default function CastingStudio({ onClose, onCreated }) {
                     color: var(--accent-pink);
                 }
                 .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; }
-                
+
                 .error-banner {
                     background: rgba(255, 60, 60, 0.1);
                     border: 1px solid var(--accent-ruby);
@@ -184,7 +217,7 @@ export default function CastingStudio({ onClose, onCreated }) {
                 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                 .field { display: flex; flex-direction: column; gap: 8px; }
                 .field label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
-                
+
                 input, select, textarea {
                     background: var(--bg-secondary);
                     border: 1px solid var(--border);
@@ -194,9 +227,9 @@ export default function CastingStudio({ onClose, onCreated }) {
                     font-family: inherit;
                     width: 100%;
                 }
-                input:focus, select:focus, textarea:focus { 
-                    outline: none; 
-                    border-color: var(--accent-pink); 
+                input:focus, select:focus, textarea:focus {
+                    outline: none;
+                    border-color: var(--accent-pink);
                 }
 
                 .btn-save {

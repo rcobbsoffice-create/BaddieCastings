@@ -1,0 +1,300 @@
+.profileHero {
+    position: relative;
+    padding: 60px 20px 28px;
+    overflow: hidden;
+}
+
+.heroBg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(255, 0, 122, 0.2) 0%, rgba(155, 89, 255, 0.12) 50%, transparent 80%);
+    pointer-events: none;
+}
+
+.heroContent {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatarWrap {
+    position: relative;
+}
+
+.avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--gradient-pink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    border: 3px solid rgba(255, 0, 122, 0.5);
+    box-shadow: 0 0 32px var(--accent-pink-glow);
+}
+
+.avatarGlow {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-pink-glow) 0%, transparent 70%);
+    animation: pulse-glow 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.nameBlock {
+    text-align: center;
+}
+
+.name {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.instagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.city {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.editBtn {
+    position: absolute;
+    top: 52px;
+    right: 20px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.editBtn:hover {
+    border-color: var(--accent-pink);
+    color: var(--accent-pink);
+}
+
+/* Stats */
+.statsRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin: 0 16px 24px;
+}
+
+.stat {
+    text-align: center;
+    flex: 1;
+}
+
+.statNum {
+    font-size: 1.1rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.statLabel {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statDivider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+}
+
+/* Content */
+.content {
+    padding: 0 16px;
+}
+
+.section {
+    margin-bottom: 24px;
+}
+
+/* Payment History */
+.paymentList {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.paymentRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.paymentRow:last-child {
+    border-bottom: none;
+}
+
+.payLabel {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.payDate {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.payRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.payAmount {
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+/* Attendance */
+.attendanceGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.attended {
+    background: #00ff88;
+    box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+}
+
+.missed {
+    background: #ff3c3c;
+    box-shadow: 0 0 6px rgba(255, 60, 60, 0.4);
+}
+
+.attendanceNote {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+/* Verify */
+.verifyCard {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 215, 0, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: var(--radius-lg);
+}
+
+.verifyTitle {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--accent-gold);
+}
+
+.verifyDesc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* Settings */
+.settingsList {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.settingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.15s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.settingRow:last-child {
+    border-bottom: none;
+}
+
+.settingRow:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.settingIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--bg-elevated, rgba(255,255,255,0.05));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.signOut {
+    color: #ff3c3c !important;
+}
+
+.signOut span {
+    color: #ff3c3c;
+}
+
+.signOut:hover {
+    background: rgba(255, 60, 60, 0.06);
+}
