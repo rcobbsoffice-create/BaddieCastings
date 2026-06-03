@@ -51,7 +51,7 @@ create table if not exists profiles (
   email           text not null,
   full_name       text,
   role            text not null default 'talent'
-                  check (role in ('talent','creator','agent','agency','admin')),
+                  check (role in ('talent','creator','agent','agency','admin','bottle_girl','bartender','hookah_girl','dj')),
   status          text not null default 'pending'
                   check (status in ('pending','active','suspended','rejected')),
 
