@@ -42,6 +42,11 @@ const recentRevenue = [
     { label: 'VIP Bundle × 1', amount: '+$135', date: 'Yesterday' },
 ];
 
+const ROLE_LABEL = {
+    talent: 'Talent', bottle_girl: 'Bottle Girl', bartender: 'Bartender',
+    hookah_girl: 'Hookah Girl', dj: 'DJ',
+};
+
 export default function AdminPage() {
     const [announcementText, setAnnouncementText] = useState('');
     const [colors, setColors] = useState({
@@ -50,10 +55,46 @@ export default function AdminPage() {
     });
     const [loading, setLoading] = useState(false);
 
+    // ID verification
+    const [idProfiles, setIdProfiles] = useState([]);
+    const [idSignedUrls, setIdSignedUrls] = useState({});
+    const [idLoadError, setIdLoadError] = useState(null);
+    const [expandedId, setExpandedId] = useState(null);
+
     useEffect(() => {
         const storedColors = localStorage.getItem('currentWeekendColors');
         if (storedColors) setColors(JSON.parse(storedColors));
+        loadIdProfiles();
     }, []);
+
+    const loadIdProfiles = async () => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, full_name, role, status, id_front_url, id_back_url, id_verified, created_at')
+            .not('id_front_url', 'is', null)
+            .order('created_at', { ascending: false });
+
+        if (error) { setIdLoadError(error.message); return; }
+        setIdProfiles(data || []);
+    };
+
+    const getSignedUrls = async (profile) => {
+        if (idSignedUrls[profile.id]) { setExpandedId(profile.id); return; }
+        const [{ data: f }, { data: b }] = await Promise.all([
+            supabase.storage.from('ids').createSignedUrl(profile.id_front_url, 3600),
+            supabase.storage.from('ids').createSignedUrl(profile.id_back_url, 3600),
+        ]);
+        setIdSignedUrls(prev => ({
+            ...prev,
+            [profile.id]: { front: f?.signedUrl, back: b?.signedUrl },
+        }));
+        setExpandedId(profile.id);
+    };
+
+    const handleVerify = async (profileId, verified) => {
+        await supabase.from('profiles').update({ id_verified: verified }).eq('id', profileId);
+        setIdProfiles(prev => prev.map(p => p.id === profileId ? { ...p, id_verified: verified } : p));
+    };
 
     const handlePostAnnouncement = async () => {
         if (!announcementText.trim()) return;
@@ -220,6 +261,89 @@ export default function AdminPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* ID Verification Review */}
+                <section className={styles.section}>
+                    <div className="section-header">
+                        <span className="section-title">🪪 ID Verification</span>
+                        <span className={styles.idBadge}>{idProfiles.filter(p => !p.id_verified).length} pending</span>
+                    </div>
+
+                    {idLoadError && (
+                        <p className={styles.idError}>Could not load IDs: {idLoadError}</p>
+                    )}
+
+                    {!idLoadError && idProfiles.length === 0 && (
+                        <div className={`card ${styles.idEmpty}`}>No ID submissions yet.</div>
+                    )}
+
+                    <div className={styles.idList}>
+                        {idProfiles.map(profile => {
+                            const isExpanded = expandedId === profile.id;
+                            const urls = idSignedUrls[profile.id];
+                            return (
+                                <div key={profile.id} className={`${styles.idCard} ${profile.id_verified ? styles.idCardVerified : ''}`}>
+                                    <div className={styles.idCardHeader} onClick={() => isExpanded ? setExpandedId(null) : getSignedUrls(profile)}>
+                                        <div className={styles.idCardAvatar}>
+                                            {profile.full_name?.[0] || '?'}
+                                        </div>
+                                        <div className={styles.idCardInfo}>
+                                            <p className={styles.idCardName}>{profile.full_name}</p>
+                                            <p className={styles.idCardMeta}>
+                                                {ROLE_LABEL[profile.role] || profile.role} · {profile.status}
+                                            </p>
+                                        </div>
+                                        <div className={styles.idCardStatus}>
+                                            {profile.id_verified
+                                                ? <span className={styles.idVerifiedBadge}>✓ Verified</span>
+                                                : <span className={styles.idPendingBadge}>Pending</span>
+                                            }
+                                            <span className={styles.idChevron}>{isExpanded ? '▲' : '▼'}</span>
+                                        </div>
+                                    </div>
+
+                                    {isExpanded && (
+                                        <div className={styles.idCardBody}>
+                                            {!urls && <p className={styles.idLoading}>Loading images…</p>}
+                                            {urls && (
+                                                <>
+                                                    <div className={styles.idImagesRow}>
+                                                        <div className={styles.idImageBox}>
+                                                            <p className={styles.idImageLabel}>Front</p>
+                                                            {urls.front
+                                                                ? <img src={urls.front} alt="ID Front" className={styles.idImage} />
+                                                                : <div className={styles.idImageMissing}>No image</div>
+                                                            }
+                                                        </div>
+                                                        <div className={styles.idImageBox}>
+                                                            <p className={styles.idImageLabel}>Back</p>
+                                                            {urls.back
+                                                                ? <img src={urls.back} alt="ID Back" className={styles.idImage} />
+                                                                : <div className={styles.idImageMissing}>No image</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div className={styles.idActions}>
+                                                        {!profile.id_verified && (
+                                                            <button className={styles.idApproveBtn} onClick={() => handleVerify(profile.id, true)}>
+                                                                <CheckCircle2 size={14} /> Verify ID
+                                                            </button>
+                                                        )}
+                                                        {profile.id_verified && (
+                                                            <button className={styles.idRevokeBtn} onClick={() => handleVerify(profile.id, false)}>
+                                                                <XCircle size={14} /> Revoke
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
 
                 {/* Announcement Composer */}
                 <section className={styles.section}>

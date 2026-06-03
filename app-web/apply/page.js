@@ -8,6 +8,7 @@ import styles from './page.module.css';
 
 const FEE_ROLES = ['bottle_girl', 'bartender', 'hookah_girl'];
 const SERVICE_ROLES = ['bottle_girl', 'bartender', 'hookah_girl', 'dj'];
+const TALENT_ROLES = ['talent', 'bottle_girl', 'bartender', 'hookah_girl', 'dj'];
 
 // Top-level role categories
 const ROLES = [
@@ -66,7 +67,7 @@ const SERVICE_SUBROLES = [
         title: 'Bottle Girl',
         sub: 'Nightclub & Event Service',
         desc: 'Work bottle service at top venues, clubs, and private events.',
-        badge: '$180 Fee',
+        badge: 'VIP Service',
         badgeClass: 'badge-pink',
         onboardingFee: 180,
     },
@@ -76,7 +77,7 @@ const SERVICE_SUBROLES = [
         title: 'Bartender',
         sub: 'Bar & Event Service',
         desc: 'Craft cocktails and work bar service at premier venues and events.',
-        badge: '$120 Fee',
+        badge: 'Bar Service',
         badgeClass: 'badge-gold',
         onboardingFee: 120,
     },
@@ -86,7 +87,7 @@ const SERVICE_SUBROLES = [
         title: 'Hookah Girl',
         sub: 'Hookah & Lounge Service',
         desc: 'Provide hookah service at lounges, clubs, and private events.',
-        badge: '$120 Fee',
+        badge: 'Lounge Service',
         badgeClass: 'badge-purple',
         onboardingFee: 120,
     },
@@ -96,7 +97,7 @@ const SERVICE_SUBROLES = [
         title: 'DJ',
         sub: 'Music & Entertainment',
         desc: 'Perform at clubs, private bookings, and events across the city.',
-        badge: 'No Fee',
+        badge: 'Entertainment',
         badgeClass: 'badge-gold',
         onboardingFee: 0,
     },
@@ -136,6 +137,10 @@ export default function ApplyPage() {
     const [form, setForm] = useState({
         fullName: '', email: '', password: '', confirmPassword: '', city: '', instagram: '',
     });
+
+    // ID uploads
+    const [idFront, setIdFront] = useState(null);
+    const [idBack, setIdBack] = useState(null);
 
     // Step 3 — role-specific
     const [details, setDetails] = useState({
@@ -183,6 +188,10 @@ export default function ApplyPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (TALENT_ROLES.includes(role) && (!idFront || !idBack)) {
+            setError('Please upload both sides of your government-issued ID.');
+            return;
+        }
         setLoading(true);
         setError('');
 
@@ -235,6 +244,14 @@ export default function ApplyPage() {
                     status:     'pending',
                     ...metadata,
                 }).select();
+
+                if (TALENT_ROLES.includes(role) && idFront && idBack) {
+                    const fd = new FormData();
+                    fd.append('userId', data.user.id);
+                    fd.append('idFront', idFront);
+                    fd.append('idBack', idBack);
+                    await fetch('/api/upload-id', { method: 'POST', body: fd });
+                }
             }
 
             try {
@@ -350,9 +367,6 @@ export default function ApplyPage() {
                                     </div>
                                     <p className={styles.roleSub}>{r.sub}</p>
                                     <p className={styles.roleDesc}>{r.desc}</p>
-                                    {r.onboardingFee > 0 && (
-                                        <p className={styles.roleFee}>Onboarding Fee: ${r.onboardingFee}</p>
-                                    )}
                                 </div>
                                 {role === r.id && <span className={styles.checkmark}>✓</span>}
                             </button>
@@ -541,15 +555,6 @@ export default function ApplyPage() {
                                         <option>Flexible</option>
                                     </select>
                                 </div>
-                                {FEE_ROLES.includes(role) && (
-                                    <div className={styles.feeBox}>
-                                        <div className={styles.feeRow}>
-                                            <span className={styles.feeLabel}>One-Time Onboarding Fee</span>
-                                            <span className={styles.feeAmount}>${selectedSubRole?.onboardingFee}</span>
-                                        </div>
-                                        <p className={styles.feeNote}>Collected upon approval. Covers account setup and platform onboarding.</p>
-                                    </div>
-                                )}
                             </>
                         )}
 
@@ -577,6 +582,48 @@ export default function ApplyPage() {
                                     <input type="url" className="input" placeholder="https://yoursite.com" value={details.website} onChange={setDetail('website')} />
                                 </div>
                             </>
+                        )}
+
+                        {/* ID Verification — required for all talent roles */}
+                        {TALENT_ROLES.includes(role) && (
+                            <div className={styles.idSection}>
+                                <p className={styles.idHeading}>ID Verification (Required)</p>
+                                <p className={styles.idNote}>Upload a clear photo of your government-issued ID. Used for age verification only — never shared publicly.</p>
+                                <div className={styles.fieldRow}>
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>Front of ID *</label>
+                                        <label className={styles.idUpload}>
+                                            {idFront ? (
+                                                <span className={styles.idUploaded}>✓ {idFront.name}</span>
+                                            ) : (
+                                                <span className={styles.idPlaceholder}>📷 Tap to upload front</span>
+                                            )}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                                onChange={(e) => setIdFront(e.target.files[0] || null)}
+                                            />
+                                        </label>
+                                    </div>
+                                    <div className={styles.field}>
+                                        <label className={styles.label}>Back of ID *</label>
+                                        <label className={styles.idUpload}>
+                                            {idBack ? (
+                                                <span className={styles.idUploaded}>✓ {idBack.name}</span>
+                                            ) : (
+                                                <span className={styles.idPlaceholder}>📷 Tap to upload back</span>
+                                            )}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                style={{ display: 'none' }}
+                                                onChange={(e) => setIdBack(e.target.files[0] || null)}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         )}
 
                         <div className={styles.terms}>
@@ -618,12 +665,6 @@ export default function ApplyPage() {
                             <span className={styles.successLabel}>Role</span>
                             <span className={styles.successValue}>{selectedRole?.emoji} {selectedRole?.title}</span>
                         </div>
-                        {FEE_ROLES.includes(role) && (
-                            <div className={styles.successRow}>
-                                <span className={styles.successLabel}>Onboarding Fee</span>
-                                <span className={styles.successValue}>${selectedSubRole?.onboardingFee} due on approval</span>
-                            </div>
-                        )}
                         <div className={styles.successRow}>
                             <span className={styles.successLabel}>Status</span>
                             <span className="badge badge-gold">Pending Review</span>

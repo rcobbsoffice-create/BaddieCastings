@@ -418,6 +418,60 @@
     margin: 0;
 }
 
+/* ── ID Verification ── */
+.idSection {
+    background: rgba(155, 89, 255, 0.06);
+    border: 1px solid rgba(155, 89, 255, 0.25);
+    border-radius: var(--radius-md);
+    padding: 16px;
+}
+
+.idHeading {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent-purple);
+    margin: 0 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.idNote {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+    line-height: 1.4;
+}
+
+.idUpload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 72px;
+    border: 1.5px dashed rgba(155, 89, 255, 0.4);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 12px;
+    transition: border-color 0.2s;
+}
+
+.idUpload:hover {
+    border-color: var(--accent-purple);
+}
+
+.idPlaceholder {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.idUploaded {
+    font-size: 0.78rem;
+    color: #00ff88;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-all;
+}
+
 /* ── select element fix ── */
 select.input {
     -webkit-appearance: none;

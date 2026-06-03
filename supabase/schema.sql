@@ -78,6 +78,11 @@ create table if not exists profiles (
   company_name    text,
   company_type    text,
 
+  -- ID verification
+  id_front_url    text,
+  id_back_url     text,
+  id_verified     boolean not null default false,
+
   -- stats (kept denormalised for fast reads)
   shifts_worked   integer not null default 0,
   rating          numeric(3,1) not null default 0.0,

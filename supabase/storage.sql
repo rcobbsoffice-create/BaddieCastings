@@ -107,3 +107,38 @@ create policy "Admins and agencies can manage all portfolio media"
         and p.role in ('admin', 'agency')
     )
   );
+
+
+-- =============================================================
+-- IDS BUCKET — private; for talent age-verification scans
+-- =============================================================
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'ids',
+  'ids',
+  false,
+  10485760,  -- 10 MB
+  array['image/jpeg','image/jpg','image/png','image/webp','image/heic','image/heif']
+)
+on conflict (id) do update set
+  public             = false,
+  file_size_limit    = 10485760,
+  allowed_mime_types = array['image/jpeg','image/jpg','image/png','image/webp','image/heic','image/heif'];
+
+drop policy if exists "Admins can view all ID documents"         on storage.objects;
+drop policy if exists "Service role can upload ID documents"     on storage.objects;
+
+-- Only admins can read ID scans
+create policy "Admins can view all ID documents"
+  on storage.objects for select
+  using (
+    bucket_id = 'ids'
+    and exists (
+      select 1 from profiles p
+      where p.id = auth.uid()
+        and p.role = 'admin'
+    )
+  );
+
+-- Service role (API route) handles inserts — no client-side upload policy needed
