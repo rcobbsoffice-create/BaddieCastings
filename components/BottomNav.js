@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, Star, Camera, ShoppingBag, User, Shield } from 'lucide-react';
+import { Home, Calendar, Star, Camera, ShoppingBag, User, Shield, MessageSquare } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import styles from './BottomNav.module.css';
 
@@ -35,6 +35,7 @@ export default function BottomNav() {
         { href: '/opportunities', icon: Star, label: 'Castings' },
         { href: '/creators', icon: Camera, label: 'Creators' },
         { href: '/shop', icon: ShoppingBag, label: 'Shop' },
+        { href: '/messages', icon: MessageSquare, label: 'Messages' },
         { href: '/profile', icon: User, label: 'Profile' },
     ];
 
