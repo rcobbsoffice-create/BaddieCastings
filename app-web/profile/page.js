@@ -81,7 +81,11 @@ export default function ProfilePage() {
                 <div className={styles.heroBg} />
                 <div className={styles.heroContent}>
                     <div className={styles.avatarWrap}>
-                        <div className={styles.avatar}>{loading ? '…' : initials}</div>
+                        {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt={profile.full_name} style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,0,122,0.4)' }} />
+                        ) : (
+                            <div className={styles.avatar}>{loading ? '…' : initials}</div>
+                        )}
                         <div className={styles.avatarGlow} />
                     </div>
                     <div className={styles.nameBlock}>

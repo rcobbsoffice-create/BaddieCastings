@@ -90,6 +90,372 @@
   color: var(--border);
 }
 
+/* Role pill */
+.rolePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Stats row */
+.statsRow {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 0 0 24px;
+}
+
+.statBox {
+  flex: 1;
+  text-align: center;
+}
+
+.statNum {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statLbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Nudge cards */
+.nudgeCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+}
+
+.nudgeId {
+  background: rgba(155, 89, 255, 0.07);
+  border: 1px solid rgba(155, 89, 255, 0.25);
+}
+
+.nudgeBody { flex: 1; }
+
+.nudgeTitle {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.nudgeSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Onboarding fee cards */
+.feeCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+}
+
+.feeCardPaid {
+  background: rgba(0, 255, 136, 0.06);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+}
+
+.feeCardPending {
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+}
+
+.feeCardUnpaid {
+  background: rgba(255, 0, 122, 0.06);
+  border: 1px solid rgba(255, 0, 122, 0.25);
+  flex-direction: column;
+}
+
+.feeUnpaidBody { width: 100%; }
+
+.feeTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.feeSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.feeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.feeAmount {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--accent-pink);
+}
+
+.cashTag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+
+.cashTagLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.cashTagHandle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00d632;
+  letter-spacing: 0.5px;
+}
+
+/* CTA Banner */
+.ctaBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s;
+}
+
+.ctaBanner:hover {
+  border-color: var(--accent-pink);
+  transform: translateY(-2px);
+}
+
+.ctaTitle {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+
+.ctaSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Announcement list */
+.announcementList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pinBadge {
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Listing cards (agent) */
+.listingList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listingCard {
+  padding: 16px;
+  display: block;
+}
+
+.listingTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.listingTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.listingMeta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+}
+
+.listingDate {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Payment queue (management) */
+.queueBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--accent-gold);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 50px;
+  padding: 2px 10px;
+}
+
+.paymentList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.paymentCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.paymentHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.paymentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--gradient-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.paymentInfo { flex: 1; }
+
+.paymentName {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.paymentMeta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.paymentAmount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  flex-shrink: 0;
+}
+
+.paymentDate {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.paymentApproveRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.approveBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.35);
+  border-radius: var(--radius-sm);
+  color: #00ff88;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.approveBtn:hover { background: rgba(0, 255, 136, 0.18); }
+.approveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Loading skeleton */
+.loadingHero {
+  padding: 52px 20px 32px;
+}
+
+.loadingPill {
+  width: 120px;
+  height: 14px;
+  background: var(--bg-card);
+  border-radius: 50px;
+  margin-bottom: 12px;
+  animation: shimmer 1.5s infinite;
+}
+
+.loadingTitle {
+  width: 200px;
+  height: 32px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.5s infinite 0.2s;
+}
+
+.loadingSkeleton {
+  height: 80px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  margin-bottom: 12px;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.7; }
+}
+
 /* Content */
 .content {
   padding: 0 16px;

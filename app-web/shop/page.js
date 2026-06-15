@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { X, ShoppingCart, Plus, Minus, Zap, CreditCard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, ShoppingCart, Plus, Minus, Zap, CreditCard, AlertCircle } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import AppShell from '@/components/AppShell';
 import styles from './page.module.css';
 
@@ -58,39 +60,149 @@ const products = [
     }
 ];
 
-function CheckoutModal({ cart, total, onClose, onClearCart }) {
-    const [step, setStep] = useState('summary'); // 'summary' | 'processing' | 'success'
+function StripePaymentForm({ cart, total, onSuccess, onClose }) {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [processing, setProcessing] = useState(false);
+    const [error, setError] = useState(null);
 
-    const handleCheckout = async () => {
-        setStep('processing');
-        await new Promise(r => setTimeout(r, 2000));
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!stripe || !elements) return;
 
-        // Check if onboarding was paid
-        const hasOnboarding = Object.keys(cart).includes('6');
-        if (hasOnboarding) {
-            localStorage.setItem('onboardingPaid', 'true');
+        setProcessing(true);
+        setError(null);
+
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+            setError(submitError.message);
+            setProcessing(false);
+            return;
         }
 
-        // Save to payment history
-        const newPayments = Object.entries(cart).map(([id, qty]) => {
+        const res = await fetch('/api/stripe/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: total,
+                items: Object.entries(cart).map(([id, qty]) => {
+                    const p = products.find(prod => prod.id === parseInt(id));
+                    return { name: p.name, qty, price: p.price };
+                }),
+            }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+            setError(data.error || 'Payment setup failed.');
+            setProcessing(false);
+            return;
+        }
+
+        const { error: confirmError } = await stripe.confirmPayment({
+            elements,
+            clientSecret: data.clientSecret,
+            confirmParams: { return_url: window.location.href },
+            redirect: 'if_required',
+        });
+
+        if (confirmError) {
+            setError(confirmError.message);
+            setProcessing(false);
+        } else {
+            onSuccess(cart);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <PaymentElement options={{ layout: 'tabs' }} />
+            {error && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#ff4d6d', fontSize: '0.82rem', marginTop: 12 }}>
+                    <AlertCircle size={14} />
+                    <span>{error}</span>
+                </div>
+            )}
+            <button
+                type="submit"
+                className="btn-gold"
+                style={{ width: '100%', marginTop: 20 }}
+                disabled={!stripe || processing}
+            >
+                {processing ? 'Processing...' : `Pay Now · $${total}`}
+            </button>
+        </form>
+    );
+}
+
+function CheckoutModal({ cart, total, onClose, onClearCart }) {
+    const [step, setStep] = useState('summary');
+    const [stripePromise, setStripePromise] = useState(null);
+    const [clientSecret, setClientSecret] = useState(null);
+    const [initError, setInitError] = useState(null);
+    const [loadingIntent, setLoadingIntent] = useState(false);
+
+    const handleProceedToPayment = async () => {
+        setLoadingIntent(true);
+        setInitError(null);
+        try {
+            const res = await fetch('/api/stripe/create-payment-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: total,
+                    items: Object.entries(cart).map(([id, qty]) => {
+                        const p = products.find(prod => prod.id === parseInt(id));
+                        return { name: p.name, qty, price: p.price };
+                    }),
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || 'Failed to initialize payment.');
+            setClientSecret(data.clientSecret);
+            setStripePromise(loadStripe(data.publishableKey));
+            setStep('payment');
+        } catch (err) {
+            setInitError(err.message);
+        }
+        setLoadingIntent(false);
+    };
+
+    const handleSuccess = (paidCart) => {
+        const hasOnboarding = Object.keys(paidCart).includes('6');
+        if (hasOnboarding) localStorage.setItem('onboardingPaid', 'true');
+
+        const newPayments = Object.entries(paidCart).map(([id, qty]) => {
             const product = products.find(p => p.id === parseInt(id));
             return {
                 label: product.name,
                 amount: -(product.price * qty),
                 date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                status: 'Paid'
+                status: 'Paid',
             };
         });
-
         const storedHistory = JSON.parse(localStorage.getItem('paymentHistory') || '[]');
         localStorage.setItem('paymentHistory', JSON.stringify([...newPayments, ...storedHistory]));
 
-        setStep('success');
         onClearCart();
+        setStep('success');
+    };
+
+    const stripeAppearance = {
+        theme: 'night',
+        variables: {
+            colorPrimary: '#FF007A',
+            colorBackground: '#12121e',
+            colorText: '#ffffff',
+            colorDanger: '#ff4d6d',
+            fontFamily: 'system-ui, sans-serif',
+            borderRadius: '10px',
+        },
     };
 
     return (
-        <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget && step !== 'payment') onClose(); }}>
             <div className={styles.modal}>
                 {step !== 'success' && (
                     <button className={styles.modalClose} onClick={onClose}>
@@ -116,24 +228,35 @@ function CheckoutModal({ cart, total, onClose, onClearCart }) {
                                 <span>${total}</span>
                             </div>
                         </div>
-                        <div className={styles.paymentMethod}>
-                            <p className={styles.methodLabel}>Payment Method</p>
-                            <div className={styles.methodCard}>
-                                <CreditCard size={18} />
-                                <span>Visa ending in 4242</span>
+                        {initError && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#ff4d6d', fontSize: '0.82rem', marginTop: 12, padding: '10px 14px', background: 'rgba(255,77,109,0.1)', borderRadius: 8 }}>
+                                <AlertCircle size={14} />
+                                <span>{initError}</span>
                             </div>
-                        </div>
-                        <button className="btn-gold" style={{ width: '100%', marginTop: 24 }} onClick={handleCheckout}>
-                            Pay Now · ${total}
+                        )}
+                        <button
+                            className="btn-gold"
+                            style={{ width: '100%', marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                            onClick={handleProceedToPayment}
+                            disabled={loadingIntent}
+                        >
+                            <CreditCard size={16} />
+                            {loadingIntent ? 'Connecting...' : `Continue to Payment · $${total}`}
                         </button>
                     </>
                 )}
 
-                {step === 'processing' && (
-                    <div className={styles.processing}>
-                        <div className={styles.spinner} />
-                        <p>Processing Secure Payment...</p>
-                    </div>
+                {step === 'payment' && stripePromise && clientSecret && (
+                    <>
+                        <h2 className={styles.modalTitle}>Secure Payment</h2>
+                        <div className={styles.summaryTotal} style={{ marginBottom: 20 }}>
+                            <span>Total</span>
+                            <span>${total}</span>
+                        </div>
+                        <Elements stripe={stripePromise} options={{ clientSecret, appearance: stripeAppearance }}>
+                            <StripePaymentForm cart={cart} total={total} onSuccess={handleSuccess} onClose={onClose} />
+                        </Elements>
+                    </>
                 )}
 
                 {step === 'success' && (

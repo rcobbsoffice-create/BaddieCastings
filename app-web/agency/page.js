@@ -7,7 +7,7 @@ import {
   DollarSign, Users, TrendingUp, ShoppingBag, BarChart2,
   CheckCircle, XCircle, Clock, Bell, Star, Settings,
   Mail, Eye, EyeOff, Search, Filter, ChevronRight,
-  Zap, RefreshCw, Trash2, Pencil, CalendarDays
+  Zap, RefreshCw, Trash2, MessageSquare, X
 } from 'lucide-react';
 import CastingStudio from '@/components/CastingStudio';
 import SystemControlHub from '@/components/SystemControlHub';
@@ -15,13 +15,12 @@ import PortfolioGallery from '@/components/PortfolioGallery';
 import styles from './page.module.css';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────
-const TABS = ['Overview', 'Castings', 'Applications', 'Submissions', 'Talent', 'Content', 'Settings'];
+const TABS = ['Overview', 'Applications', 'Submissions', 'Talent', 'Content', 'Settings'];
 
 export default function AgencyDashboard() {
   const [tab, setTab] = useState('Overview');
   const [expandedSub, setExpandedSub] = useState(null);
   const [showCastingModal, setShowCastingModal]   = useState(false);
-  const [editingListing, setEditingListing]       = useState(null);
   const [showConfigModal, setShowConfigModal]     = useState(false);
   const [announcementText, setAnnouncementText]   = useState('');
   const [postingAnn, setPostingAnn]               = useState(false);
@@ -49,34 +48,31 @@ export default function AgencyDashboard() {
   const [applications,  setApplications]  = useState([]);
   const [submissions,   setSubmissions]   = useState([]);
   const [profiles,      setProfiles]      = useState([]);
-  const [listings,      setListings]      = useState([]);
-  const [allShifts,     setAllShifts]     = useState([]);
   const [loading,       setLoading]       = useState(true);
+  const [selectedApps,  setSelectedApps]  = useState(new Set());
+  const [ratingModal,   setRatingModal]   = useState(null); // talent profile object
+  const [ratingValue,   setRatingValue]   = useState(5);
 
   // ─── Fetch all data ───────────────────────────────────────────────────
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [appsRes, subsRes, profRes, shiftRes, allShiftsRes, txRes, settingsRes, videosRes, listingsRes] = await Promise.all([
+      const [appsRes, subsRes, profRes, shiftRes, txRes, settingsRes, videosRes] = await Promise.all([
         supabase.from('applications').select('*').order('created_at', { ascending: false }),
         supabase.from('form_submissions').select('*').order('submitted_at', { ascending: false }),
         supabase.from('profiles').select('*').order('created_at', { ascending: false }),
         supabase.from('shifts').select('id, confirmed').eq('confirmed', true),
-        supabase.from('shifts').select('*').order('created_at', { ascending: false }),
         supabase.from('transactions').select('amount').eq('status', 'paid'),
         supabase.from('settings').select('value').eq('key', 'currentWeekendColors').single(),
         supabase.from('featured_videos').select('*').order('sort_order', { ascending: true }),
-        supabase.from('listings').select('*').order('created_at', { ascending: false }),
       ]);
 
-      const apps     = appsRes.data      || [];
-      const subs     = subsRes.data      || [];
-      const profs    = profRes.data      || [];
-      const shifts   = shiftRes.data     || [];
-      const txns     = txRes.data        || [];
-      const videos   = videosRes.data    || [];
-      const listings = listingsRes.data  || [];
-      const shiftsAll = allShiftsRes.data || [];
+      const apps   = appsRes.data   || [];
+      const subs   = subsRes.data   || [];
+      const profs  = profRes.data   || [];
+      const shifts = shiftRes.data  || [];
+      const txns   = txRes.data     || [];
+      const videos = videosRes.data || [];
 
       if (settingsRes.data?.value) setColors(settingsRes.data.value);
 
@@ -84,8 +80,6 @@ export default function AgencyDashboard() {
       setSubmissions(subs);
       setProfiles(profs);
       setFeaturedVideos(videos);
-      setListings(listings);
-      setAllShifts(shiftsAll);
 
       const revenue = txns.reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
 
@@ -170,20 +164,6 @@ export default function AgencyDashboard() {
     setUpdatingVideo(false);
   };
 
-  // ─── Delete listing ────────────────────────────────────────────────────
-  const handleDeleteListing = async (id) => {
-    if (!window.confirm('Permanently delete this casting?')) return;
-    const { error } = await supabase.from('listings').delete().eq('id', id);
-    if (!error) setListings(prev => prev.filter(l => l.id !== id));
-  };
-
-  // ─── Delete shift ──────────────────────────────────────────────────────
-  const handleDeleteShift = async (id) => {
-    if (!window.confirm('Permanently delete this shift?')) return;
-    const { error } = await supabase.from('shifts').delete().eq('id', id);
-    if (!error) setAllShifts(prev => prev.filter(s => s.id !== id));
-  };
-
   // ─── Application status update ────────────────────────────────────────
   const handleAppStatus = async (id, status) => {
     const { error } = await supabase.from('applications').update({ status }).eq('id', id);
@@ -230,21 +210,51 @@ export default function AgencyDashboard() {
     setClearingSubmissions(true);
     const idsToDelete = filteredSubs.map(s => s.id);
     try {
-      // Supabase REST has URL length limits — batch deletes in chunks of 50
-      const CHUNK = 50;
-      for (let i = 0; i < idsToDelete.length; i += CHUNK) {
-        const chunk = idsToDelete.slice(i, i + CHUNK);
-        const { error } = await supabase.from('form_submissions').delete().in('id', chunk);
-        if (error) throw error;
+      const { error } = await supabase.from('form_submissions').delete().in('id', idsToDelete);
+      if (error) {
+        console.error('Clear submissions error:', error);
+        alert(`Failed to delete submissions: ${error.message}`);
+      } else {
+        setSubmissions(prev => prev.filter(s => !idsToDelete.includes(s.id)));
+        setExpandedSub(null);
       }
-      setSubmissions(prev => prev.filter(s => !idsToDelete.includes(s.id)));
-      setExpandedSub(null);
     } catch (err) {
-      console.error('Clear submissions error:', err);
-      alert(`Failed to delete submissions: ${err.message}`);
+      console.error('Clear submissions exception:', err);
+      alert('An unexpected error occurred. Please try again.');
     } finally {
       setClearingSubmissions(false);
     }
+  };
+
+  // ─── Bulk application actions ─────────────────────────────────────────────
+  const handleBulkStatus = async (status) => {
+    const ids = [...selectedApps];
+    if (!ids.length) return;
+    await supabase.from('applications').update({ status }).in('id', ids);
+    setApplications(prev => prev.map(a => ids.includes(a.id) ? { ...a, status } : a));
+    setSelectedApps(new Set());
+  };
+
+  const toggleSelectApp = (id) => setSelectedApps(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const toggleSelectAll = () => {
+    const pending = applications.filter(a => a.status === 'pending').map(a => a.id);
+    setSelectedApps(prev => prev.size === pending.length ? new Set() : new Set(pending));
+  };
+
+  // ─── Rate talent ──────────────────────────────────────────────────────────
+  const handleRateTalent = async () => {
+    if (!ratingModal) return;
+    const current = ratingModal.rating || 0;
+    const shifts  = Math.max(ratingModal.shifts_worked || 1, 1);
+    const newRating = parseFloat(((current * (shifts - 1) + ratingValue) / shifts).toFixed(1));
+    await supabase.from('profiles').update({ rating: newRating }).eq('id', ratingModal.id);
+    setProfiles(prev => prev.map(p => p.id === ratingModal.id ? { ...p, rating: newRating } : p));
+    setRatingModal(null);
   };
 
   // ─── Post announcement ────────────────────────────────────────────────
@@ -346,6 +356,44 @@ export default function AgencyDashboard() {
               ))}
             </div>
 
+            {/* Analytics */}
+            <section className={styles.section}>
+              <div className="section-header"><span className="section-title">📊 Platform Analytics</span></div>
+              <div className={`card ${styles.announceCard}`}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 20 }}>
+                  {[
+                    { label: 'Active Talent', value: stats.totalTalent, color: 'var(--accent-pink)' },
+                    { label: 'Total Revenue', value: `$${stats.totalRevenue.toLocaleString()}`, color: 'var(--accent-gold)' },
+                    { label: 'Pending Apps', value: stats.pendingApps, color: '#facc15' },
+                  ].map(s => (
+                    <div key={s.label} style={{ textAlign: 'center' }}>
+                      <p style={{ fontSize: '1.4rem', fontWeight: 900, color: s.color }}>{loading ? '—' : s.value}</p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 10 }}>TALENT STATUS BREAKDOWN</p>
+                  {[
+                    { label: 'Active',  count: profiles.filter(p => p.status === 'active').length,   color: '#00ff88' },
+                    { label: 'Pending', count: profiles.filter(p => p.status === 'pending').length,  color: '#facc15' },
+                    { label: 'Suspended', count: profiles.filter(p => p.status === 'suspended').length, color: '#ff4d6d' },
+                  ].map(row => {
+                    const total = profiles.length || 1;
+                    return (
+                      <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', width: 64 }}>{row.label}</span>
+                        <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary)', borderRadius: 4, overflow: 'hidden' }}>
+                          <div style={{ width: `${Math.round((row.count / total) * 100)}%`, height: '100%', background: row.color, borderRadius: 4, transition: 'width 0.5s' }} />
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', width: 24, textAlign: 'right' }}>{row.count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+
             {/* Weekend Color Drop */}
             <section className={styles.section}>
               <div className="section-header"><span className="section-title">🎨 Weekend Color Drop</span></div>
@@ -417,67 +465,12 @@ export default function AgencyDashboard() {
                   <div><h4>View Submissions</h4><p>{stats.newSubmissions} unread leads</p></div>
                   <ChevronRight size={16} />
                 </button>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* ══════════════════════════════ CASTINGS ══════════════════════════════ */}
-        {tab === 'Castings' && (
-          <div className={styles.overviewGrid}>
-            <section className={styles.section}>
-              <div className="section-header">
-                <span className="section-title">⭐ Active Castings</span>
-                <button className="btn-pink" style={{ fontSize: '0.8rem', padding: '6px 14px' }} onClick={() => setShowCastingModal(true)}>+ New</button>
-              </div>
-              <div className={styles.listSection}>
-                {listings.length === 0 && !loading && <p className={styles.emptyMsg}>No castings yet.</p>}
-                {listings.map(l => (
-                  <div key={l.id} className={`card ${styles.appCard}`}>
-                    <div className={styles.appAvatar} style={{ background: 'var(--accent-pink-dim)', color: 'var(--accent-pink)', fontSize: '0.7rem', fontWeight: 800 }}>
-                      {l.category?.[0] || 'C'}
-                    </div>
-                    <div className={styles.appInfo}>
-                      <h3>{l.title}</h3>
-                      <p>{l.venue} · {l.date} · {l.pay}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{l.spots} spots · {l.location}</p>
-                    </div>
-                    <div className={styles.appActions}>
-                      <button className={styles.actionBtn} style={{ color: 'var(--accent-gold)' }} onClick={() => setEditingListing(l)} title="Edit">
-                        <Pencil size={18} />
-                      </button>
-                      <button className={`${styles.actionBtn} ${styles.reject}`} onClick={() => handleDeleteListing(l.id)} title="Delete">
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className={styles.section}>
-              <div className="section-header"><span className="section-title"><CalendarDays size={16} style={{ display: 'inline', marginRight: 6 }} />All Shifts</span></div>
-              <div className={styles.listSection}>
-                {allShifts.length === 0 && !loading && <p className={styles.emptyMsg}>No shifts found.</p>}
-                {allShifts.map(s => (
-                  <div key={s.id} className={`card ${styles.appCard}`}>
-                    <div className={styles.appAvatar} style={{ background: s.confirmed ? 'rgba(0,255,136,0.1)' : 'rgba(255,204,0,0.1)', color: s.confirmed ? '#00ff88' : '#facc15', fontSize: '0.65rem', fontWeight: 800 }}>
-                      {s.confirmed ? '✓' : '?'}
-                    </div>
-                    <div className={styles.appInfo}>
-                      <h3>{s.venue}</h3>
-                      <p>{s.day} {s.date} · {s.start_time}{s.end_time ? ` – ${s.end_time}` : ''}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {s.confirmed ? 'Confirmed' : 'Unconfirmed'}{s.pay ? ` · $${s.pay}` : ''}
-                      </p>
-                    </div>
-                    <div className={styles.appActions}>
-                      <button className={`${styles.actionBtn} ${styles.reject}`} onClick={() => handleDeleteShift(s.id)} title="Delete">
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                <div className={styles.divider} />
+                <a href="/messages" className={styles.actionItem} style={{ textDecoration: 'none' }}>
+                  <MessageSquare size={20} />
+                  <div><h4>Messages</h4><p>Direct talent communication</p></div>
+                  <ChevronRight size={16} />
+                </a>
               </div>
             </section>
           </div>
@@ -485,38 +478,51 @@ export default function AgencyDashboard() {
 
         {/* ══════════════════════════════ APPLICATIONS ══════════════════════════════ */}
         {tab === 'Applications' && (
-          <div className={styles.listSection}>
-            {applications.length === 0 && !loading && (
-              <p className={styles.emptyMsg}>No applications yet.</p>
-            )}
-            {applications.map(app => (
-              <div key={app.id} className={`card ${styles.appCard}`}>
-                <div className={styles.appAvatar}>{app.full_name?.[0] || 'T'}</div>
-                <div className={styles.appInfo}>
-                  <h3>{app.full_name || 'Unknown'}</h3>
-                  <p>{app.listing_title} · {new Date(app.created_at).toLocaleDateString()}</p>
-                  {app.instagram && <p style={{ color: 'var(--accent-pink)', fontSize: '0.8rem' }}>{app.instagram}</p>}
-                  <span className={`badge ${
-                    app.status === 'approved' ? 'badge-emerald' :
-                    app.status === 'rejected' ? 'badge-ruby' : ''
-                  }`} style={{ fontSize: '0.6rem', marginTop: 4, display: 'inline-block' }}>
-                    {app.status}
-                  </span>
-                </div>
-                {app.status === 'pending' && (
-                  <div className={styles.appActions}>
-                    <button className={`${styles.actionBtn} ${styles.reject}`}
-                      onClick={() => handleAppStatus(app.id, 'rejected')} title="Reject">
-                      <XCircle size={20} />
+          <div>
+            {applications.filter(a => a.status === 'pending').length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 0 12px', flexWrap: 'wrap' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                  <input type="checkbox" onChange={toggleSelectAll} checked={selectedApps.size === applications.filter(a => a.status === 'pending').length && selectedApps.size > 0} />
+                  Select All Pending
+                </label>
+                {selectedApps.size > 0 && (
+                  <>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedApps.size} selected</span>
+                    <button className="btn-primary" style={{ padding: '6px 14px', fontSize: '0.78rem' }} onClick={() => handleBulkStatus('approved')}>
+                      <CheckCircle size={13} /> Approve All
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.approve}`}
-                      onClick={() => handleAppStatus(app.id, 'approved')} title="Approve">
-                      <CheckCircle size={20} />
+                    <button className="btn-secondary" style={{ padding: '6px 14px', fontSize: '0.78rem', color: 'var(--accent-ruby)' }} onClick={() => handleBulkStatus('rejected')}>
+                      <XCircle size={13} /> Reject All
                     </button>
-                  </div>
+                  </>
                 )}
               </div>
-            ))}
+            )}
+            <div className={styles.listSection}>
+              {applications.length === 0 && !loading && <p className={styles.emptyMsg}>No applications yet.</p>}
+              {applications.map(app => (
+                <div key={app.id} className={`card ${styles.appCard}`}>
+                  {app.status === 'pending' && (
+                    <input type="checkbox" checked={selectedApps.has(app.id)} onChange={() => toggleSelectApp(app.id)} style={{ marginRight: 4 }} onClick={e => e.stopPropagation()} />
+                  )}
+                  <div className={styles.appAvatar}>{app.full_name?.[0] || 'T'}</div>
+                  <div className={styles.appInfo}>
+                    <h3>{app.full_name || 'Unknown'}</h3>
+                    <p>{app.listing_title} · {new Date(app.created_at).toLocaleDateString()}</p>
+                    {app.instagram && <p style={{ color: 'var(--accent-pink)', fontSize: '0.8rem' }}>{app.instagram}</p>}
+                    <span className={`badge ${app.status === 'approved' ? 'badge-emerald' : app.status === 'rejected' ? 'badge-ruby' : ''}`} style={{ fontSize: '0.6rem', marginTop: 4, display: 'inline-block' }}>
+                      {app.status}
+                    </span>
+                  </div>
+                  {app.status === 'pending' && (
+                    <div className={styles.appActions}>
+                      <button className={`${styles.actionBtn} ${styles.reject}`} onClick={() => handleAppStatus(app.id, 'rejected')} title="Reject"><XCircle size={20} /></button>
+                      <button className={`${styles.actionBtn} ${styles.approve}`} onClick={() => handleAppStatus(app.id, 'approved')} title="Approve"><CheckCircle size={20} /></button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -641,9 +647,12 @@ export default function AgencyDashboard() {
                         {p.status}
                       </span>
                     </div>
-                    <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <p>⭐ {p.rating}</p>
+                    <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      <p>⭐ {p.rating || '—'}</p>
                       <p>{p.shifts_worked} shifts</p>
+                      <button className={styles.actionBtn} style={{ color: 'var(--accent-gold)' }} title="Rate Talent" onClick={e => { e.stopPropagation(); setRatingModal(p); setRatingValue(5); }}>
+                        <Star size={16} />
+                      </button>
                     </div>
                   </div>
                   
@@ -754,14 +763,27 @@ export default function AgencyDashboard() {
         )}
       </div>
 
-      {showCastingModal && (
-        <CastingStudio onClose={() => setShowCastingModal(false)} onCreated={fetchAll} />
-      )}
-      {editingListing && (
-        <CastingStudio listing={editingListing} onClose={() => setEditingListing(null)} onCreated={fetchAll} />
-      )}
-      {showConfigModal && (
-        <SystemControlHub onClose={() => setShowConfigModal(false)} onUpdated={fetchAll} />
+      {showCastingModal && <CastingStudio onClose={() => setShowCastingModal(false)} onCreated={fetchAll} />}
+      {showConfigModal  && <SystemControlHub onClose={() => setShowConfigModal(false)} onUpdated={fetchAll} />}
+
+      {/* Rating Modal */}
+      {ratingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
+          onClick={e => e.target === e.currentTarget && setRatingModal(null)}>
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 28, width: '100%', maxWidth: 360 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontWeight: 800 }}>Rate {ratingModal.full_name?.split(' ')[0]}</h3>
+              <button onClick={() => setRatingModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
+              {[1,2,3,4,5].map(s => (
+                <button key={s} onClick={() => setRatingValue(s)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 32, opacity: s <= ratingValue ? 1 : 0.3, transition: 'opacity 0.15s' }}>★</button>
+              ))}
+            </div>
+            <p style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 20 }}>{ratingValue} / 5 stars</p>
+            <button className="btn-gold" style={{ width: '100%' }} onClick={handleRateTalent}>Submit Rating</button>
+          </div>
+        </div>
       )}
     </AppShell>
   );
